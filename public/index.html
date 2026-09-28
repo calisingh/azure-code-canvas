@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Code Canvas · Azure Container Apps</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='26'>&#10024;</text></svg>">
+  <link rel="stylesheet" href="styles.css">
+  <script>
+    (() => {
+      const param = new URLSearchParams(location.search).get("theme");
+      const saved = localStorage.getItem("canvas-theme");
+      const preferred = matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+      document.documentElement.setAttribute(
+        "data-theme",
+        param === "light" || param === "dark" ? param : saved || preferred
+      );
+    })();
+  </script>
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark">✦</div>
+        <div>
+          <div class="brand-title">Code Canvas</div>
+          <div class="brand-sub">Generative UI on Azure Container Apps</div>
+        </div>
+      </div>
+
+      <div class="spacer"></div>
+
+      <div class="rail">
+        <div class="pill" id="runtimePill" title="Where this app is running">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>
+          <span id="runtimeText">local</span>
+        </div>
+        <div class="pill" id="modelPill" title="Azure OpenAI deployment">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3v3m0 12v3M3 12h3m12 0h3M5.6 5.6l2.1 2.1m8.6 8.6 2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/><circle cx="12" cy="12" r="3.2"/></svg>
+          <b id="modelText">—</b>
+        </div>
+        <div class="pill" id="sandboxPill" title="Azure Container Apps dynamic session pool">
+          <span class="dot"></span><span id="sandboxText">sandbox</span>
+        </div>
+        <div class="pill" id="renderPill" title="Where the preview is rendered">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="14" rx="2"/><path d="M8 21h8m-4-3v3"/></svg>
+          <span id="renderText">render</span>
+        </div>
+      </div>
+
+      <div class="spacer"></div>
+
+      <button class="btn icon" id="themeBtn" title="Toggle theme" aria-label="Toggle theme">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path id="themeIcon" d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg>
+      </button>
+      <button class="btn" id="newBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+        New
+      </button>
+      <button class="btn primary" id="exportBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0 4-4m-4 4-4-4M5 19h14"/></svg>
+        Export
+      </button>
+    </header>
+
+    <main class="workspace">
+      <!-- ============ 01 chat ============ -->
+      <section class="pane">
+        <div class="pane-head">
+          <span class="step">01</span>
+          <div>
+            <div class="pane-kicker">Prompt</div>
+            <div class="pane-title">Build with language</div>
+          </div>
+          <div class="spacer"></div>
+          <span class="pane-meta" id="chatMeta"></span>
+        </div>
+
+        <div class="chat-scroll" id="chatScroll">
+          <div class="hero" id="hero">
+            <div class="hero-badge">✦ Generative UI</div>
+            <h1>What should we <em>ship</em> today?</h1>
+            <p>
+              Describe a product surface. A GPT-5 class model writes the code, an isolated
+              Azure Container Apps session verifies it, and the container renders it live.
+            </p>
+            <div class="chips">
+              <button class="chip">A revenue intelligence dashboard with KPI cards, an SVG trend chart, and a sortable pipeline table</button>
+              <button class="chip">A kanban board with drag-and-drop, labels, and a filter bar</button>
+              <button class="chip">An incident status page with live severity timeline and service health grid</button>
+              <button class="chip">A flight search UI with filters, sorting, and expandable itinerary cards</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="composer-wrap">
+          <div class="composer">
+            <textarea id="prompt" rows="3" placeholder="Describe what you want to build or change…"></textarea>
+            <div class="composer-bar">
+              <span class="composer-hint">Enter to build · Shift+Enter for a new line</span>
+              <button class="btn primary send" id="sendBtn" title="Build" aria-label="Build">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 14-9-4 18-3-7-7-2Z"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ 02 code ============ -->
+      <section class="pane">
+        <div class="pane-head">
+          <span class="step">02</span>
+          <div>
+            <div class="pane-kicker">Generated</div>
+            <div class="pane-title">Source code</div>
+          </div>
+          <div class="spacer"></div>
+          <button class="btn icon" id="copyBtn" title="Copy code">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M15 9V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h4"/></svg>
+          </button>
+        </div>
+
+        <div class="tabbar">
+          <div class="tab active"><span class="lang">&lt;/&gt;</span> index.html</div>
+          <div class="spacer"></div>
+          <span class="streaming-dot" id="streamDot" hidden></span>
+        </div>
+
+        <div class="code-scroll" id="codeScroll">
+          <div class="gutter" id="gutter"></div>
+          <pre class="code" id="code"></pre>
+        </div>
+
+        <div class="versions" id="versions"></div>
+
+        <div class="code-foot">
+          <span class="ok">●</span>
+          <span id="lineCount">0 lines</span>
+          <span id="byteCount">0 KB</span>
+          <span>UTF-8</span>
+          <span>HTML</span>
+        </div>
+      </section>
+
+      <!-- ============ 03 preview ============ -->
+      <section class="pane">
+        <div class="pane-head">
+          <span class="step">03</span>
+          <div>
+            <div class="pane-kicker">Rendered</div>
+            <div class="pane-title">Live preview</div>
+          </div>
+          <div class="spacer"></div>
+          <div class="seg" id="viewSeg">
+            <button data-view="preview" class="active">Preview</button>
+            <button data-view="sandbox">Sandbox QA</button>
+          </div>
+          <div class="seg" id="deviceSeg">
+            <button data-device="desktop" class="active">Desktop</button>
+            <button data-device="tablet">Tablet</button>
+            <button data-device="mobile">Mobile</button>
+          </div>
+        </div>
+
+        <div class="preview-body">
+          <div class="urlbar">
+            <div class="lights"><i></i><i></i><i></i></div>
+            <div class="url">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+              <span id="urlText">served by the container · awaiting first build</span>
+            </div>
+            <button class="btn icon" id="refreshBtn" title="Reload preview">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6v6h-6"/><path d="M4 18v-6h6"/><path d="M18.5 9A7 7 0 0 0 6 6.5L4 12m16 0-2 5.5A7 7 0 0 1 5.5 15"/></svg>
+            </button>
+            <button class="btn icon" id="popoutBtn" title="Open in new tab">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6"/><path d="M20 4 10 14"/><path d="M19 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h5"/></svg>
+            </button>
+          </div>
+
+          <div class="stage" id="stage">
+            <div class="frame-shell" id="frameShell">
+              <iframe id="frame" title="Generated application preview"
+                      sandbox="allow-scripts allow-forms allow-modals allow-popups"></iframe>
+            </div>
+          </div>
+
+          <div class="sandbox" id="sandbox">
+            <div class="empty" id="sandboxEmpty">
+              Build something first — the artifact is verified inside an isolated
+              Azure Container Apps dynamic session.
+            </div>
+          </div>
+
+          <div class="cover" id="cover">
+            <div class="cover-card">
+              <div class="spinner"></div>
+              <strong id="coverTitle">Building…</strong>
+              <span id="coverDetail">Streaming from Azure OpenAI</span>
+              <div class="cover-bar"><i></i></div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="toast" id="toast"></div>
+  <script src="app.js"></script>
+</body>
+</html>

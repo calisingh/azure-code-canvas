@@ -1,0 +1,15 @@
+{
+  "name": "azure-code-canvas",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Generative UI studio on Azure Container Apps: a GPT-5 class model writes a web app, an isolated micro-VM verifies it, and a second micro-VM renders it live.",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "start": "node server.mjs",
+    "dev": "node --watch server.mjs",
+    "capture": "node docs/capture.mjs"
+  }
+}

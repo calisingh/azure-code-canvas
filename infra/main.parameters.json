@@ -1,0 +1,42 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "appName": {
+      "value": "codecanvas"
+    },
+    "location": {
+      "value": "eastus2"
+    },
+    "openAiAccountId": {
+      "value": "/subscriptions/REPLACE_SUB_ID/resourceGroups/REPLACE_RG/providers/Microsoft.CognitiveServices/accounts/REPLACE_ACCOUNT"
+    },
+    "openAiDeployment": {
+      "value": "gpt-5.6-terra"
+    },
+    "openAiFallbackDeployment": {
+      "value": "gpt-5.5"
+    },
+    "openAiReasoningEffort": {
+      "value": "medium"
+    },
+    "imageTag": {
+      "value": "v1"
+    },
+    "maxConcurrentSessions": {
+      "value": 100
+    },
+    "readySessionInstances": {
+      "value": 5
+    },
+    "sessionCooldownSeconds": {
+      "value": 600
+    },
+    "studioMinReplicas": {
+      "value": 1
+    },
+    "studioMaxReplicas": {
+      "value": 5
+    }
+  }
+}
